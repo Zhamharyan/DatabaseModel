@@ -1,16 +1,17 @@
 package controller.model;
 
-import exceptions.DescriptionException;
-import exceptions.RatingException;
-import exceptions.TitleException;
+import exceptions.*;
+import service.MovieService;
+import service.model.Director;
 
 public class MovieRequest {
 
     private String title;
     private String description;
     private double rating;
+    private int directorId;
 
-    public MovieRequest createMovieRequest(String title,String description,double rating){
+    public MovieRequest createMovieRequest(String title,String description,double rating,int directorId){
         MovieRequest movieRequest = new MovieRequest();
         if(description.length()<4){
             throw new DescriptionException();
@@ -24,6 +25,12 @@ public class MovieRequest {
             throw new RatingException();
         }
         movieRequest.rating = rating;
+        int directorIdInetegr;
+
+        if(directorId<0 || directorId>MovieService.getDirectors().size()){
+            throw new InvalidDirectorId();
+        }
+        movieRequest.directorId = directorId;
         return movieRequest;
     }
 
@@ -38,14 +45,14 @@ public class MovieRequest {
     }
 
     public void setTitle(String title) {
-        if(title.length()<1){
+        if(title.length()<2){
             throw new TitleException();
         }
         this.title = title;
     }
 
     public void setDescription(String description) {
-        if(description.length()<1){
+        if(description.length()<4){
             throw new DescriptionException();
         }
         this.description = description;
@@ -56,5 +63,23 @@ public class MovieRequest {
             throw new RatingException();
         }
         this.rating = rating;
+    }
+
+    public int getDirectorId() {
+        return directorId;
+    }
+    public void setDirectorId(String id){
+        int directorIdInteger;
+
+        try{
+            directorIdInteger = Integer.parseInt(id);
+        }
+        catch (NumberFormatException ex){
+            throw new DirectorIdToInetger();
+        }
+        if(directorIdInteger<0 || directorIdInteger>MovieService.getDirectors().size()){
+            throw new InvalidDirectorId();
+        }
+        this.directorId = directorIdInteger;
     }
 }

@@ -1,9 +1,12 @@
 package controller;
 
 import exceptions.IncorrectCommandType;
+import exceptions.InvalidDirectorId;
 import exceptions.InvalidIdNumber;
+import exceptions.InvalidTypeException;
 import service.MovieService;
 import controller.model.MovieRequest;
+import service.model.Director;
 import service.model.Movie;
 
 import java.util.*;
@@ -25,8 +28,29 @@ public class MovieController {
             String title = scanner.nextLine();
             System.out.println("Input Movie Description");
             String description = scanner.nextLine();
+            System.out.println("Input director id");
+            List<Director> directors = MovieService.getDirectors();
+            for(int i = 0;i<directors.size();i++){
+                System.out.println("Director Id = "+directors.get(i).getId()+" Director name = "+directors.get(i).getName()+" Director Age = "+directors.get(i).getAge());
+            }
+            int directorIdInteger;
+            while(true) {
+                String directorId = scanner.nextLine();
+                try {
+                    directorIdInteger = Integer.parseInt(directorId);
+                    if (directorIdInteger < 0 || directorIdInteger > directors.size()) {
+                        throw new InvalidDirectorId();
+                    }
+                    break;
+                } catch (InvalidTypeException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                catch(NumberFormatException ex){
+                    System.out.println("The director id must be number");
+                }
+            }
             int rating = 5;
-            create(title,description,rating);
+            create(title,description,rating,directorIdInteger);
             System.out.println("The film was successfully added to database");
         }
         else if(response.equals("2")){
@@ -49,9 +73,9 @@ public class MovieController {
         }
 
     }
-    public static void create(String title,String description,double rating){
+    public static void create(String title,String description,double rating,int directoId){
         MovieRequest movieRequest = new MovieRequest();
-        MovieRequest movieRequestModel = movieRequest.createMovieRequest(title,description,rating);
+        MovieRequest movieRequestModel = movieRequest.createMovieRequest(title,description,rating,directoId);
         MovieService.create(movieRequestModel);
     }
     public static void readAll(){
@@ -85,11 +109,13 @@ public class MovieController {
             try {
                 movieIdInterger = Integer.parseInt(movieId);
                 Movie movie = MovieService.checkIndex(movieIdInterger);
-                System.out.println("Titile = "+movie.getTitle()+"\nDescription = "+movie.getDescription());
+                System.out.println("Titile = "+movie.getTitle()+"\nDescription = "+movie.getDescription()+"\nDirectorName = "+movie.getDirector().getName());
                 System.out.println("input new title you want to edit or leave null if you do not want to edit");
                 String newTitle = scanner.nextLine();
                 System.out.println("input new description you want to edit or leave null if you do not want to edit");
                 String newDescription = scanner.nextLine();
+                System.out.println("input new DirectorId you want to edit or leave null if you do not want to edit");
+                String directorId = scanner.nextLine();
                 MovieRequest movieRequest = new MovieRequest();
                 if(!newTitle.equals("")){
                     movieRequest.setTitle(newTitle);
@@ -102,6 +128,12 @@ public class MovieController {
                 }
                 else{
                     movieRequest.setTitle(movie.getDescription());
+                }
+                if(!directorId.equals("")){
+                    movieRequest.setDirectorId(directorId);
+                }
+                else{
+                    movieRequest.setDirectorId(String.valueOf(movie.getDirector().getId()));
                 }
                 MovieService.updateById(movieIdInterger,movieRequest);
                 break;
