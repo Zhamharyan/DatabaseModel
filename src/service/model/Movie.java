@@ -9,6 +9,16 @@ public class Movie {
     }
     private static int count;
     private  int id;
+    private Director director;
+
+    public Director getDirector() {
+        return director;
+    }
+
+    public void setDirector(Director director) {
+        this.director = director;
+    }
+
     private String title;
     private String description;
     private double rating;
@@ -22,18 +32,12 @@ public class Movie {
         return title;
     }
     public void setTitle(String title) {
-        if(title.length()<2){
-            throw new TitleException();
-        }
         this.title = title;
     }
     public String getDescription() {
         return description;
     }
     public void setDescription(String description) {
-        if(description.length()<4){
-            throw new DescriptionException();
-        }
         this.description = description;
     }
     public double getRating() {
